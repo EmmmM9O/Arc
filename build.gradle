@@ -23,7 +23,7 @@ libraries.jnigen = [
 
 allprojects{
     apply plugin: 'maven-publish'
-    group = 'com.github.Anuken'
+    group = 'com.github.emmmm9o'
     version = '1.0'
 
     buildscript{

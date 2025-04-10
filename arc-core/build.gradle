@@ -28,6 +28,12 @@ jnigen{
         cppIncludes = ["*.cpp", "soloud/src/core/**", "soloud/src/audiosource/wav/**", "soloud/src/filter/**"]
         cIncludes = ["*.c", "soloud/src/core/**", "soloud/src/audiosource/wav/**", "soloud/src/filter/**"]
     }
+    /*
+    add(Linux, x64, ARM){
+        cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
+        cppFlags = "-DWITH_MINIAUDIO " + cppFlags
+        libraries += " -lpthread -lrt -lm -ldl"
+    }
     add(Linux, x64){
         cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
         cppFlags = "-DWITH_MINIAUDIO " + cppFlags
@@ -41,11 +47,13 @@ jnigen{
         cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
         cppFlags = "-msse -DWITH_MINIAUDIO " + cppFlags
     }
+    */
     add(Android){
         linkerFlags += " -llog -lOpenSLES"
         cppIncludes += ["soloud/src/backend/opensles/*.cpp"]
         cppFlags = "-DWITH_OPENSLES " + cppFlags
     }
+    /*
     add(MacOsX, x64){
         cppIncludes += ["soloud/src/backend/coreaudio/*.cpp"]
         cppFlags = "-std=c++11 -DWITH_COREAUDIO " + cppFlags
@@ -63,6 +71,7 @@ jnigen{
         cppIncludes += ["soloud/src/backend/coreaudio/*.cpp", "iosgl/**"]
         cppFlags = "-stdlib=libc++ -std=c++11 -DWITH_COREAUDIO " + cppFlags
     }
+    */
 }
 
 task fixWrap{
@@ -98,7 +107,7 @@ task preJni{
         if(!file("csrc/stb_image.h").exists()){
             println "Fetching stb_image source..."
             //currently locked to a specific commit
-            "curl -o $rootDir/arc-core/csrc/stb_image.h https://raw.githubusercontent.com/nothings/stb/e140649ccf40818781b7e408f6228a486f6d254b/stb_image.h".execute().waitFor()
+            "curl -o $rootDir/arc-core/csrc/stb_image.h https://github.tbedu.top/https://raw.githubusercontent.com/nothings/stb/e140649ccf40818781b7e408f6228a486f6d254b/stb_image.h".execute().waitFor()
         }
 
         if(!file("csrc/soloud").exists()){
@@ -118,7 +127,7 @@ task preJni{
 task postJni{
     doLast{
         copy{
-            from "libs/linux64", "libs/windows32", "libs/windows64", "libs/macosx64"
+            from "libs/linux64", "libs/windows32", "libs/windows64", "libs/macosx64", "libs/linuxarm64"
             into "../natives/natives-desktop/libs"
             include "**"
         }
