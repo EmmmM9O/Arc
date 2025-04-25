@@ -28,12 +28,14 @@ jnigen{
         cppIncludes = ["*.cpp", "soloud/src/core/**", "soloud/src/audiosource/wav/**", "soloud/src/filter/**"]
         cIncludes = ["*.c", "soloud/src/core/**", "soloud/src/audiosource/wav/**", "soloud/src/filter/**"]
     }
-    /*
+
     add(Linux, x64, ARM){
+cFlags = cFlags.replace("x86_64", "arm64")
         cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
-        cppFlags = "-DWITH_MINIAUDIO " + cppFlags
+        cppFlags = "-DWITH_MINIAUDIO " + cppFlags.replace("x86_64", "arm64")
         libraries += " -lpthread -lrt -lm -ldl"
     }
+/*
     add(Linux, x64){
         cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
         cppFlags = "-DWITH_MINIAUDIO " + cppFlags
@@ -48,12 +50,15 @@ jnigen{
         cppFlags = "-msse -DWITH_MINIAUDIO " + cppFlags
     }
     */
+
     add(Android){
         linkerFlags += " -llog -lOpenSLES"
         cppIncludes += ["soloud/src/backend/opensles/*.cpp"]
         cppFlags = "-DWITH_OPENSLES " + cppFlags
     }
     /*
+
+>>>>>>> fd3dd2d (Arc arm)
     add(MacOsX, x64){
         cppIncludes += ["soloud/src/backend/coreaudio/*.cpp"]
         cppFlags = "-std=c++11 -DWITH_COREAUDIO " + cppFlags
@@ -72,6 +77,7 @@ jnigen{
         cppFlags = "-stdlib=libc++ -std=c++11 -DWITH_COREAUDIO " + cppFlags
     }
     */
+
 }
 
 task fixWrap{

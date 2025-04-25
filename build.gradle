@@ -59,6 +59,7 @@ allprojects{
         }
         options.compilerArgs.addAll(['--release', '8'])
         options.encoding = "UTF-8"
+	options.compilerArgs += ["-parameters"]
     }
 
     tasks.withType(Javadoc){
