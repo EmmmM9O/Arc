@@ -63,10 +63,11 @@ libraries.lwjgl = [
 
 allprojects{
     apply plugin: 'maven-publish'
-    group = 'com.github.Anuken'
+    group = 'com.github.emmmm9o'
     version = '1.0'
 
     repositories{
+        mavenLocal()
         mavenCentral()
         maven{ url = "https://central.sonatype.com/repository/maven-snapshots" }
         google()

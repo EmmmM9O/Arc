@@ -283,6 +283,30 @@ public class QuadTree<T extends QuadTreeObject>{
         }
     }
 
+    /**
+     * Processes objects that may intersect the given rectangle.
+     * <p>
+     * This will never result in false positives.
+     */
+    public void contains(float x, float y, Cons<T> out){
+        if(!leaf){
+            if(topLeft.bounds.contains(x, y)) topLeft.contains(x, y, out);
+            if(topRight.bounds.contains(x, y)) topRight.contains(x, y, out);
+            if(botLeft.bounds.contains(x, y)) botLeft.contains(x, y, out);
+            if(botRight.bounds.contains(x, y)) botRight.contains(x, y, out);
+        }
+
+        Seq<?> objects = this.objects;
+
+        for(int i = 0; i < objects.size; i++){
+            T item = (T)objects.items[i];
+            hitbox(item);
+            if(tmp.contains(x, y)){
+                out.get(item);
+            }
+        }
+    }
+
     /** Adds all quadtree objects to the specified Seq. */
     public void getObjects(Seq<T> out){
         out.addAll(objects);

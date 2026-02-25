@@ -77,6 +77,14 @@ jnigen{
         cppFlags += ["-flto"]
         linkerFlags += ["-flto"]
     }
+    add(Linux, x64, ARM){
+        cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
+        cppFlags = "-DWITH_MINIAUDIO " + cppFlags.replace("x86_64", "arm64")
+        cFlags = cFlags.replace("x86_64", "arm64")
+        libraries += " -lpthread -lrt -lm -ldl"
+        linkerFlags = linkerFlags.replace("x86_64", "arm64")
+    }
+    /*
     addLinux(x64, x86){
         headerDirs += ["$root/soloud/src/backend/miniaudio/"]
         cppIncludes += ["$root/soloud/src/backend/miniaudio/*.cpp"]
@@ -111,9 +119,51 @@ jnigen{
         libraries += "-Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox".split(" ")
         linkerFlags += "-undefined dynamic_lookup"
     }
+    */
 }
 
 tasks.register('copyUnsafeStuff'){
+    add(MacOsX, x64, ARM){
+        cppIncludes += ["soloud/src/backend/coreaudio/*.cpp"]
+        cppFlags = "-std=c++11 -DWITH_COREAUDIO " + cppFlags.replace("x86_64", "arm64")
+        cFlags = cFlags.replace("x86_64", "arm64")
+        libraries += "-Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox"
+        linkerFlags = linkerFlags.replace("x86_64", "arm64")
+    }
+    add(IOS){
+        headerDirs += ["iosgl"]
+        cppIncludes += ["soloud/src/backend/coreaudio/*.cpp", "iosgl/**"]
+        cppFlags = "-stdlib=libc++ -std=c++11 -DWITH_COREAUDIO " + cppFlags
+        libraries += "-Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox"
+        linkerFlags += " -undefined dynamic_lookup "
+    }
+}
+
+task fixWrap{
+    doFirst{
+        println "--FIXING SCRIPTS--"
+        copy{
+            from "../natives/memcpy_wrap.c"
+            into "jni/"
+        }
+
+        def f = file("$rootDir/arc-core/jni/build-linux64.xml");
+        if(f.exists()){
+            f.text = f.text.replace("-Wl,-wrap,memcpy", "-Wl,-wrap,memcpy,-wrap,pow,-wrap,powf,-wrap,log,-wrap,logf,-wrap,exp,-wrap,expf,-wrap,clock_gettime")
+        }
+        //Well I use linux arm64 to develop so I do not need cross-compiling
+        f = file("$rootDir/arc-core/jni/build-linuxarm64.xml");
+        if(f.exists()){
+           f.text = f.text.replace("aarch64-linux-gnu-","")
+        }
+    }
+}
+
+getTasksByName("jnigen", true).each{
+    it.finalizedBy fixWrap
+}
+
+task cleanNatives{
     doLast{
         copy{
             from zipTree("unsafe/unsafe.jar")
@@ -145,6 +195,35 @@ tasks.register('preJni'){
     }
 }
 
+//copies files into the right locations
+task postJni{
+    doLast{
+        copy{
+            from "libs/linux64", "libs/windows32", "libs/windows64", "libs/macosx64", "libs/linuxarm64"
+            into "../natives/natives-desktop/libs"
+            include "**"
+        }
+
+        ["arm64-v8a", "x86", "x86_64", "armeabi-v7a"].each{ p ->
+            copy{
+                from "libs/$p"
+                into "../natives/natives-android/libs/$p/"
+                include "**"
+            }
+        }
+
+        [".tvos", ""].each{ p ->
+            copy{
+                from "libs/ios32/libarc.a$p"
+                into "../natives/natives-ios/libs/"
+                include "**"
+            }
+        }
+    }
+}
+
+jnigenBuild.finalizedBy postJni
+
 getTasksByName("jnigen", true).each{
-    it.dependsOn copyUnsafeStuff, preJni
+    it.dependsOn preJni
 }

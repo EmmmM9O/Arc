@@ -71,10 +71,9 @@ public class Shader implements Disposable{
     private final ObjectIntMap<String> attributeTypes = new ObjectIntMap<>();
     /** attribute sizes **/
     private final ObjectIntMap<String> attributeSizes = new ObjectIntMap<>();
+    public boolean isInitlized;
     /** vertex shader source **/
-    private final String vertexShaderSource;
-    /** fragment shader source **/
-    private final String fragmentShaderSource;
+    private String vertexShaderSource;
     IntBuffer params = Buffers.newIntBuffer(1);
     IntBuffer type = Buffers.newIntBuffer(1);
     /** the log **/
@@ -92,6 +91,8 @@ public class Shader implements Disposable{
     /** fragment shader handle **/
     private int fragmentShaderHandle;
     private boolean disposed;
+    /** fragment shader source **/
+    private String fragmentShaderSource;
 
     /**
      * Constructs a new Shader and immediately compiles it.
@@ -101,7 +102,14 @@ public class Shader implements Disposable{
     public Shader(String vertexShader, String fragmentShader){
         if(vertexShader == null) throw new IllegalArgumentException("vertex shader must not be null");
         if(fragmentShader == null) throw new IllegalArgumentException("fragment shader must not be null");
+        this.vertexShaderSource = vertexShader;
+        this.fragmentShaderSource = fragmentShader;
+    }
 
+    public void init(){
+        isInitlized = true;
+        String vertexShader = vertexShaderSource;
+        String fragmentShader = fragmentShaderSource;
         if(prependVertexCode != null && prependVertexCode.length() > 0) vertexShader = prependVertexCode + vertexShader;
         if(prependFragmentCode != null && prependFragmentCode.length() > 0) fragmentShader = prependFragmentCode + fragmentShader;
 
@@ -118,6 +126,10 @@ public class Shader implements Disposable{
         }else{
             throw new IllegalArgumentException("Failed to compile shader: " + log);
         }
+    }
+
+    public void use(){
+        if(!isInitlized) init();
     }
 
     public Shader(Fi vertexShader, Fi fragmentShader){
@@ -265,6 +277,7 @@ public class Shader implements Disposable{
      * have an effect.
      */
     public String getLog(){
+        use();
         if(isCompiled){
             log = Gl.getProgramInfoLog(program);
             return log;
@@ -275,6 +288,7 @@ public class Shader implements Disposable{
 
     /** @return whether this Shader compiled successfully. */
     public boolean isCompiled(){
+        use();
         return isCompiled;
     }
 
@@ -312,11 +326,13 @@ public class Shader implements Disposable{
      * @param value the value
      */
     public void setUniformi(String name, int value){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform1i(location, value);
     }
 
     public void setUniformi(int location, int value){
+        use();
         Gl.uniform1i(location, value);
     }
 
@@ -327,11 +343,13 @@ public class Shader implements Disposable{
      * @param value2 the second value
      */
     public void setUniformi(String name, int value1, int value2){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform2i(location, value1, value2);
     }
 
     public void setUniformi(int location, int value1, int value2){
+        use();
         Gl.uniform2i(location, value1, value2);
     }
 
@@ -343,11 +361,13 @@ public class Shader implements Disposable{
      * @param value3 the third value
      */
     public void setUniformi(String name, int value1, int value2, int value3){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform3i(location, value1, value2, value3);
     }
 
     public void setUniformi(int location, int value1, int value2, int value3){
+        use();
         Gl.uniform3i(location, value1, value2, value3);
     }
 
@@ -360,11 +380,13 @@ public class Shader implements Disposable{
      * @param value4 the fourth value
      */
     public void setUniformi(String name, int value1, int value2, int value3, int value4){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform4i(location, value1, value2, value3, value4);
     }
 
     public void setUniformi(int location, int value1, int value2, int value3, int value4){
+        use();
         Gl.uniform4i(location, value1, value2, value3, value4);
     }
 
@@ -374,11 +396,13 @@ public class Shader implements Disposable{
      * @param value the value
      */
     public void setUniformf(String name, float value){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform1f(location, value);
     }
 
     public void setUniformf(int location, float value){
+        use();
         Gl.uniform1f(location, value);
     }
 
@@ -389,11 +413,13 @@ public class Shader implements Disposable{
      * @param value2 the second value
      */
     public void setUniformf(String name, float value1, float value2){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform2f(location, value1, value2);
     }
 
     public void setUniformf(int location, float value1, float value2){
+        use();
         Gl.uniform2f(location, value1, value2);
     }
 
@@ -405,11 +431,13 @@ public class Shader implements Disposable{
      * @param value3 the third value
      */
     public void setUniformf(String name, float value1, float value2, float value3){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform3f(location, value1, value2, value3);
     }
 
     public void setUniformf(int location, float value1, float value2, float value3){
+        use();
         Gl.uniform3f(location, value1, value2, value3);
     }
 
@@ -422,47 +450,57 @@ public class Shader implements Disposable{
      * @param value4 the fourth value
      */
     public void setUniformf(String name, float value1, float value2, float value3, float value4){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform4f(location, value1, value2, value3, value4);
     }
 
     public void setUniformf(int location, float value1, float value2, float value3, float value4){
+        use();
         Gl.uniform4f(location, value1, value2, value3, value4);
     }
 
     public void setUniform1fv(String name, float[] values, int offset, int length){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform1fv(location, length, values, offset);
     }
 
     public void setUniform1fv(int location, float[] values, int offset, int length){
+        use();
         Gl.uniform1fv(location, length, values, offset);
     }
 
     public void setUniform2fv(String name, float[] values, int offset, int length){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform2fv(location, length / 2, values, offset);
     }
 
     public void setUniform2fv(int location, float[] values, int offset, int length){
+        use();
         Gl.uniform2fv(location, length / 2, values, offset);
     }
 
     public void setUniform3fv(String name, float[] values, int offset, int length){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform3fv(location, length / 3, values, offset);
     }
 
     public void setUniform3fv(int location, float[] values, int offset, int length){
+        use();
         Gl.uniform3fv(location, length / 3, values, offset);
     }
 
     public void setUniform4fv(String name, float[] values, int offset, int length){
+        use();
         int location = fetchUniformLocation(name);
         Gl.uniform4fv(location, length / 4, values, offset);
     }
 
     public void setUniform4fv(int location, float[] values, int offset, int length){
+        use();
         Gl.uniform4fv(location, length / 4, values, offset);
     }
 
@@ -472,6 +510,7 @@ public class Shader implements Disposable{
      * @param matrix the matrix
      */
     public void setUniformMatrix(String name, Mat matrix){
+        use();
         setUniformMatrix(name, matrix, false);
     }
 
@@ -482,26 +521,32 @@ public class Shader implements Disposable{
      * @param transpose whether the uniform matrix should be transposed
      */
     public void setUniformMatrix(String name, Mat matrix, boolean transpose){
+        use();
         setUniformMatrix(fetchUniformLocation(name), matrix, transpose);
     }
 
     public void setUniformMatrix(int location, Mat matrix){
+        use();
         setUniformMatrix(location, matrix, false);
     }
 
     public void setUniformMatrix(int location, Mat matrix, boolean transpose){
+        use();
         Gl.uniformMatrix3fv(location, 1, transpose, matrix.val, 0);
     }
 
     public void setUniformMatrix4(String name, float[] val){
+        use();
         Gl.uniformMatrix4fv(fetchUniformLocation(name), 1, false, val, 0);
     }
 
     public void setUniformMatrix4(String name, Mat mat){
+        use();
         Gl.uniformMatrix4fv(fetchUniformLocation(name), 1, false, copyTransform(mat), 0);
     }
 
     public void setUniformMatrix4(String name, Mat mat, float near, float far){
+        use();
         Gl.uniformMatrix4fv(fetchUniformLocation(name), 1, false, copyTransform(mat, near, far), 0);
     }
 
@@ -512,6 +557,7 @@ public class Shader implements Disposable{
      * @param transpose whether the uniform matrix should be transposed
      */
     public void setUniformMatrix3fv(String name, FloatBuffer buffer, int count, boolean transpose){
+        use();
         buffer.position(0);
         int location = fetchUniformLocation(name);
         Gl.uniformMatrix3fv(location, count, transpose, buffer);
@@ -524,16 +570,19 @@ public class Shader implements Disposable{
      * @param transpose whether the uniform matrix should be transposed
      */
     public void setUniformMatrix4fv(String name, FloatBuffer buffer, int count, boolean transpose){
+        use();
         buffer.position(0);
         int location = fetchUniformLocation(name);
         Gl.uniformMatrix4fv(location, count, transpose, buffer);
     }
 
     public void setUniformMatrix4fv(int location, float[] values, int offset, int length){
+        use();
         Gl.uniformMatrix4fv(location, length / 16, false, values, offset);
     }
 
     public void setUniformMatrix4fv(String name, float[] values, int offset, int length){
+        use();
         setUniformMatrix4fv(fetchUniformLocation(name), values, offset, length);
     }
 
@@ -543,10 +592,12 @@ public class Shader implements Disposable{
      * @param values x and y as the first and second values respectively
      */
     public void setUniformf(String name, Vec2 values){
+        use();
         setUniformf(name, values.x, values.y);
     }
 
     public void setUniformf(int location, Vec2 values){
+        use();
         setUniformf(location, values.x, values.y);
     }
 
@@ -556,10 +607,12 @@ public class Shader implements Disposable{
      * @param values x, y and z as the first, second and third values respectively
      */
     public void setUniformf(String name, Vec3 values){
+        use();
         setUniformf(name, values.x, values.y, values.z);
     }
 
     public void setUniformf(int location, Vec3 values){
+        use();
         setUniformf(location, values.x, values.y, values.z);
     }
 
@@ -569,10 +622,12 @@ public class Shader implements Disposable{
      * @param values r, g, b and a as the first through fourth values respectively
      */
     public void setUniformf(String name, Color values){
+        use();
         setUniformf(name, values.r, values.g, values.b, values.a);
     }
 
     public void setUniformf(int location, Color values){
+        use();
         setUniformf(location, values.r, values.g, values.b, values.a);
     }
 
@@ -580,12 +635,14 @@ public class Shader implements Disposable{
      * Makes OpenGL ES 2.0 use this vertex and fragment shader pair.
      */
     public void bind(){
+        use();
         Gl.useProgram(program);
     }
 
     /** Disposes all resources associated with this shader. Must be called when the shader is no longer used. */
     @Override
     public void dispose(){
+        use();
         if(disposed) return;
 
         Gl.useProgram(0);
@@ -597,6 +654,7 @@ public class Shader implements Disposable{
 
     @Override
     public boolean isDisposed(){
+        use();
         return disposed;
     }
 
@@ -605,6 +663,7 @@ public class Shader implements Disposable{
      * @param name the vertex attribute name
      */
     public void disableVertexAttribute(String name){
+        use();
         int location = fetchAttributeLocation(name);
         if(location == -1) return;
         Gl.disableVertexAttribArray(location);
@@ -655,6 +714,7 @@ public class Shader implements Disposable{
      * @return whether the attribute is available in the shader
      */
     public boolean hasAttribute(String name){
+        use();
         return attributes.containsKey(name);
     }
 
@@ -663,6 +723,7 @@ public class Shader implements Disposable{
      * @return the type of the attribute, one of {@link GL20#GL_FLOAT}, {@link GL20#GL_FLOAT_VEC2} etc.
      */
     public int getAttributeType(String name){
+        use();
         return attributeTypes.get(name, 0);
     }
 
@@ -671,6 +732,7 @@ public class Shader implements Disposable{
      * @return the location of the attribute or -1.
      */
     public int getAttributeLocation(String name){
+        use();
         return attributes.get(name, -1);
     }
 
@@ -679,6 +741,7 @@ public class Shader implements Disposable{
      * @return the size of the attribute or 0.
      */
     public int getAttributeSize(String name){
+        use();
         return attributeSizes.get(name, 0);
     }
 
@@ -687,6 +750,7 @@ public class Shader implements Disposable{
      * @return whether the uniform is available in the shader
      */
     public boolean hasUniform(String name){
+        use();
         return uniforms.containsKey(name);
     }
 
@@ -695,6 +759,7 @@ public class Shader implements Disposable{
      * @return the type of the uniform, one of {@link GL20#GL_FLOAT}, {@link GL20#GL_FLOAT_VEC2} etc.
      */
     public int getUniformType(String name){
+        use();
         return uniformTypes.get(name, 0);
     }
 
@@ -703,6 +768,7 @@ public class Shader implements Disposable{
      * @return the location of the uniform or -1.
      */
     public int getUniformLocation(String name){
+        use();
         return uniforms.get(name, -1);
     }
 
@@ -711,26 +777,31 @@ public class Shader implements Disposable{
      * @return the size of the uniform or 0.
      */
     public int getUniformSize(String name){
+        use();
         return uniformSizes.get(name, 0);
     }
 
     /** @return the attributes */
     public String[] getAttributes(){
+        use();
         return attributeNames;
     }
 
     /** @return the uniforms */
     public String[] getUniforms(){
+        use();
         return uniformNames;
     }
 
     /** @return the source of the vertex shader */
     public String getVertexShaderSource(){
+        use();
         return vertexShaderSource;
     }
 
     /** @return the source of the fragment shader */
     public String getFragmentShaderSource(){
+        use();
         return fragmentShaderSource;
     }
 

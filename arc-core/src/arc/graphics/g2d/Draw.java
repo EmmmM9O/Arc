@@ -308,6 +308,9 @@ public class Draw{
         Draw.rect(Tmp.tr1, camera.position.x, camera.position.y, camera.width, camera.height);
     }
 
+    public static void draw(Runnable run){
+        batch.draw(run);
+    }
     /** On a sorting or queued batch implementation, this treats everything inside the runnable as one unit.
      * Thus, it can be used to set shaders and do other special state. */
     public static void draw(float z, Runnable run){
