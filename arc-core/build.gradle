@@ -77,12 +77,12 @@ jnigen{
         cppFlags += ["-flto"]
         linkerFlags += ["-flto"]
     }
-    add(Linux, x64, ARM){
+    addLinux(x64, ARM){
         cppIncludes += ["soloud/src/backend/miniaudio/*.cpp"]
-        cppFlags = "-DWITH_MINIAUDIO " + cppFlags.replace("x86_64", "arm64")
-        cFlags = cFlags.replace("x86_64", "arm64")
+        cppFlags = "-DWITH_MINIAUDIO " + cppFlags.collect{ it.replace("x86_64", "arm64") } as String[]
+        cFlags = cFlags.collect{ it.replace("x86_64", "arm64") } as String[]
         libraries += " -lpthread -lrt -lm -ldl"
-        linkerFlags = linkerFlags.replace("x86_64", "arm64")
+        linkerFlags = linkerFlags.collect{ it.replace("x86_64", "arm64") } as String[]
     }
     /*
     addLinux(x64, x86){
@@ -123,19 +123,12 @@ jnigen{
 }
 
 tasks.register('copyUnsafeStuff'){
-    add(MacOsX, x64, ARM){
-        cppIncludes += ["soloud/src/backend/coreaudio/*.cpp"]
-        cppFlags = "-std=c++11 -DWITH_COREAUDIO " + cppFlags.replace("x86_64", "arm64")
-        cFlags = cFlags.replace("x86_64", "arm64")
-        libraries += "-Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox"
-        linkerFlags = linkerFlags.replace("x86_64", "arm64")
-    }
-    add(IOS){
-        headerDirs += ["iosgl"]
-        cppIncludes += ["soloud/src/backend/coreaudio/*.cpp", "iosgl/**"]
-        cppFlags = "-stdlib=libc++ -std=c++11 -DWITH_COREAUDIO " + cppFlags
-        libraries += "-Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox"
-        linkerFlags += " -undefined dynamic_lookup "
+    doLast{
+        copy{
+            from zipTree("unsafe/unsafe.jar")
+            into "build/classes/java/main"
+            include '**/*.class'
+        }
     }
 }
 
@@ -163,16 +156,6 @@ getTasksByName("jnigen", true).each{
     it.finalizedBy fixWrap
 }
 
-task cleanNatives{
-    doLast{
-        copy{
-            from zipTree("unsafe/unsafe.jar")
-            into "build/classes/java/main"
-            include '**/*.class'
-        }
-    }
-}
-
 tasks.register('cleanNatives'){
     doLast{
         delete{ delete "$rootDir/arc-core/csrc/soloud" }
@@ -196,6 +179,7 @@ tasks.register('preJni'){
 }
 
 //copies files into the right locations
+/*
 task postJni{
     doLast{
         copy{
@@ -220,9 +204,7 @@ task postJni{
             }
         }
     }
-}
-
-jnigenBuild.finalizedBy postJni
+}*/
 
 getTasksByName("jnigen", true).each{
     it.dependsOn preJni
